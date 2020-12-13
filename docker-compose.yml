@@ -1,0 +1,26 @@
+version: "3"
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - 3306:3306
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - mysql-data:/var/lib/mysql
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    tty: true
+    stdin_open: true
+    privileged: true
+    command: /sbin/init && cd /home/apiuseuser/gemefrie_api && gem install bundler && bundle install && rake unicorn:start
+    depends_on:
+      - db
+    ports:
+      - "3000:80"
+volumes:
+  mysql-data:
+    driver: local
